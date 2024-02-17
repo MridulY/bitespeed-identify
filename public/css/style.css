@@ -1,0 +1,50 @@
+/* public/css/style.css */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #6a95ff; /* Updated background color to a light blue */
+    color: #333; /* Ensuring text is readable against the background */
+}
+
+h1 {
+    color: #fff; /* White color for contrast */
+    text-align: center; /* Center align the h1 element */
+}
+
+form {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Adding a subtle shadow for depth */
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="email"], input[type="text"] {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #005aee;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block; /* Make the button block level to allow centering */
+    margin: 0 auto; /* Center the button horizontally */
+}
+
+button:hover {
+    background-color: #0041c4;
+}
