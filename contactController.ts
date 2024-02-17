@@ -41,7 +41,7 @@ async function findOrCreateContact(email: string | null, phoneNumber: string | n
 async function updateContactLinking(email: string, phoneNumber: string, primaryContactId: number): Promise<void> {
     // Update the existing contact to be secondary if it matches the new primary contact criteria
     await query(
-        `UPDATE contact_zkyu SET linkedId = $1, linkPrecedence = 'secondary', updatedAt = NOW() WHERE phoneNumber = $2 AND id != $1`,
+        `UPDATE contact_zkyu SET linkedid = $1, linkprecedence = 'secondary', updatedat = NOW() WHERE phonenumber = $2 AND id != $1`,
         [primaryContactId, phoneNumber]
     );
 }
@@ -55,7 +55,7 @@ export const identifyContact = async (req: Request, res: Response) => {
         await updateContactLinking(email, phoneNumber, primaryContactId);
 
         const contacts = await query(
-            `SELECT id, email, phoneNumber, linkedId FROM contact_zkyu WHERE id = $1 OR linkedId = $1`,
+            `SELECT id, email, phonenumber, linkedid FROM contact_zkyu WHERE id = $1 OR linkedid = $1`,
             [primaryContactId]
         );
 
