@@ -38,42 +38,35 @@ async function findOrCreateContact(email: string | null, phoneNumber: string | n
     }
 }
 
+async function updateContactLinking(email: string, phoneNumber: string, primaryContactId: number): Promise<void> {
+    // Update the existing contact to be secondary if it matches the new primary contact criteria
+    await query(
+        `UPDATE contact_zkyu SET linkedId = $1, linkPrecedence = 'secondary', updatedAt = NOW() WHERE phoneNumber = $2 AND id != $1`,
+        [primaryContactId, phoneNumber]
+    );
+}
+
 export const identifyContact = async (req: Request, res: Response) => {
     try {
         const { email, phoneNumber } = req.body;
 
         const primaryContactId = await findOrCreateContact(email, phoneNumber);
 
-        const linkedContactsQuery = `
-            SELECT * FROM contact_zkyu
-            WHERE id = $1 OR linkedid = $1;
-        `;
-        const linkedContactsResult = await query(linkedContactsQuery, [primaryContactId]);
+        await updateContactLinking(email, phoneNumber, primaryContactId);
 
-        const contacts: Contact[] = linkedContactsResult.rows.map(dbRow => ({
-            id: dbRow.id,
-            email: dbRow.email,
-            phoneNumber: dbRow.phonenumber,
-            linkedId: dbRow.linkedid,
-            linkPrecedence: dbRow.linkprecedence,
-            createdAt: dbRow.createdat,
-            updatedAt: dbRow.updatedat,
-            deletedAt: dbRow.deletedat
-        }));
+        const contacts = await query(
+            `SELECT id, email, phoneNumber, linkedId FROM contact_zkyu WHERE id = $1 OR linkedId = $1`,
+            [primaryContactId]
+        );
 
-        const uniqueEmails = [...new Set(contacts.map(contact => contact.email).filter(email => email !== null))];
-        const uniquePhoneNumbers = [...new Set(contacts.map(contact => contact.phoneNumber).filter(phoneNumber => phoneNumber !== null))];
-
-        const response = {
+        res.json({
             contact: {
                 primaryContactId: primaryContactId,
-                emails: uniqueEmails,
-                phoneNumbers: uniquePhoneNumbers,
-                secondaryContactIds: contacts.filter(contact => contact.id !== primaryContactId).map(contact => contact.id)
-            }
-        };
-
-        res.json(response);
+                emails: contacts.rows.map(contact => contact.email),
+                phoneNumbers: contacts.rows.map(contact => contact.phoneNumber),
+                secondaryContactIds: contacts.rows.filter(contact => contact.id !== primaryContactId).map(contact => contact.id),
+            },
+        });
     } catch (error) {
         console.error('Failed to identify contact:', error);
         res.status(500).json({ message: 'Internal Server Error' });
