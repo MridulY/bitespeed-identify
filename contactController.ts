@@ -18,7 +18,7 @@ async function findOrCreateContact(email: string | null, phoneNumber: string | n
     }
 
     const findContactQuery = `
-        SELECT * FROM contact
+        SELECT * FROM contact_zkyu
         WHERE email = $1 OR phonenumber = $2
         ORDER BY createdat ASC
         LIMIT 1;
@@ -29,7 +29,7 @@ async function findOrCreateContact(email: string | null, phoneNumber: string | n
         return findResult.rows[0].id;
     } else {
         const insertContactQuery = `
-            INSERT INTO contact (email, phonenumber, linkprecedence)
+            INSERT INTO contact_zkyu (email, phonenumber, linkprecedence)
             VALUES ($1, $2, 'primary')
             RETURNING id;
         `;
@@ -45,7 +45,7 @@ export const identifyContact = async (req: Request, res: Response) => {
         const primaryContactId = await findOrCreateContact(email, phoneNumber);
 
         const linkedContactsQuery = `
-            SELECT * FROM contact
+            SELECT * FROM contact_zkyu
             WHERE id = $1 OR linkedid = $1;
         `;
         const linkedContactsResult = await query(linkedContactsQuery, [primaryContactId]);
